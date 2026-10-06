@@ -13,65 +13,65 @@
 \section{Il compilatore}
 \subsection{Cos'è un compilatore}
 Il compilatore, generalizzando, è un meccanismo che trasforma il codice sorgente in codice eseguibile.
-Una caratteristica del codice eseguibile è l'essere machine dependent, difatti noi studieremo i principi generali di questa traduzione ma dobbiamo tenere bene a mente il fatto che ogni tipo di macchina ha il suo proprio linguaggio macchina che deve essere utilizzato per scrivere gli eseguibili da essa utilizzabili. Durante il corso, useremo spesso come punto di riferimento il compilatore gcc: tale progetto è in sviluppo da 20 anni e consta di ben più di due milioni di righe di codice!
+Una caratteristica del codice eseguibile è l'essere machine-dependent; difatti studieremo i principi generali di questa traduzione, ma dobbiamo tenere bene a mente che ogni tipo di macchina ha il proprio linguaggio macchina, il quale deve essere impiegato per scrivere gli eseguibili da essa supportati. Durante il corso, useremo spesso come punto di riferimento il compilatore GCC: tale progetto è in sviluppo da 20 anni e consta di ben più di due milioni di righe di codice!
 
 \paragraph{A cosa serve}
-L’esempio classico di utilizzo di un compilatore è la traduzione da codice \texttt{c} in assembly.
-Un codice in assembly, tuttavia non è ancora eseguibile. Manca il passaggio di conversione da assembly a codice binario; tuttavia, questo passaggio non è così complesso dato che assembly ha una corrispondenza quasi 1:1 con il binario.
+L’esempio classico di utilizzo di un compilatore è la traduzione da codice in \texttt{C} ad assembly.
+Un codice in assembly, tuttavia, non è ancora eseguibile. Manca il passaggio di conversione da assembly a codice binario; nondimeno, questo passaggio non è così complesso dato che l'assembly ha una corrispondenza quasi 1:1 con il binario.
 Ma quest’ultima traduzione non è l’unico passaggio mancante: rimane ancora da affrontare la fase di linking.
 
 \subsection{Le fasi del processo di compilazione}
-In questa sezione presentiamo le fasi del processo di compilazione come se fossero in pipeline, ma sappi che per ragioni di efficienza vengono spesso sovrapposte. Due punti fondamentali di questo processo sono i seguenti:
+In questa sezione presentiamo le fasi del processo di compilazione come se fossero in pipeline, ma si tenga presente che per ragioni di efficienza vengono spesso sovrapposte. Due punti fondamentali di questo processo sono i seguenti:
 \begin{enumerate}
-    \item Se scriviamo il programma in un certo linguaggio, lo dovremo compilare con il compilatore dedicato esattamente a quel linguaggio
-    \item Quando scrivo codice per un certo compilatore devo rispettare la grammatica del linguaggio per cui il compilatore lavora
+    \item Se scriviamo il programma in un certo linguaggio, lo dovremo compilare con il compilatore dedicato esattamente a quel linguaggio.
+    \item Quando scriviamo codice per un certo compilatore, dobbiamo rispettare la grammatica del linguaggio per cui il compilatore lavora.
 \end{enumerate}
-La grammatica di un linguaggio definisce la struttura legale delle varie operazioni possibili in quel linguaggio; ad esempio, può definire questa forma per un’operazione di assegnamento:
+La grammatica di un linguaggio definisce la struttura valida delle varie operazioni possibili in quel linguaggio; ad esempio, può definire questa forma per un’operazione di assegnamento:
 \begin{equation*}
 	\textrm{\texttt{Identifier Assign Expression Semicolon}}
 \end{equation*}
-Dove \texttt{Identifier} è un segnaposto per un qualsiasi identificatore (stringa) che può essere utilizzato dal programmatore.
-In primis dunque abbiamo questi due elementi: codice sorgente e grammatica.
+dove \texttt{Identifier} è un segnaposto per un qualsiasi identificatore (stringa) che può essere utilizzato dal programmatore.
+In primis, dunque, abbiamo questi due elementi: codice sorgente e grammatica.
 
 Avendo chiarito il punto di partenza, possiamo procedere con una descrizione delle fasi della compilazione.
 
 \subsubsection{Analisi lessicale}
-Il primo passaggio che compie il compilatore è l’analisi lessicale: questa traduce un flusso di caratteri in un flusso di \emph{tokens}, ciò significa che risolve ogni “stringa” riconoscendo il suo ruolo. Per esempio, traduce:
+Il primo passaggio che compie il compilatore è l’analisi lessicale: questa traduce un flusso di caratteri in un flusso di \emph{token}; ciò significa che risolve ogni “stringa” riconoscendone il ruolo. Per esempio, traduce:
 \begin{equation*}
 	\textrm{\texttt{pippo = 2*3}}
 \end{equation*}
-In una nuova stringa, che ha una forma simile a:
+in una nuova stringa, che ha una forma simile a:
 \begin{equation*}
 	\textrm{\texttt{<ID, pippo> ASS <NUM,2 > MUL <NUM,3> SEMCOL}}
 \end{equation*}
-In questa fase i token che otteniamo contengono le informazioni sul tipo di dato o comando che ogni singola stringa identifica,  “si tratta di capire chi è chi”. Nota che non vengono perse informazioni, non si tratta di una traduzione in cui la stringa dell’ID viene eliminata: si tiene la stringa “pippo” e vi si assegna il ruolo di identificatore (ID).
+In questa fase i token che otteniamo contengono le informazioni sul tipo di dato o comando che ogni singola stringa identifica: in altre parole, «si tratta di capire chi è chi». Si noti che non vengono perse informazioni; non si tratta di una traduzione in cui la stringa dell’ID viene eliminata: si tiene la stringa “pippo” e vi si assegna il ruolo di identificatore (ID).
 
 \subsubsection{Analisi sintattica}
 Dopo l’analisi lessicale arriva l’analisi sintattica: questa analisi verifica che la sequenza di token sia aderente alla grammatica del linguaggio che stiamo utilizzando, ed è la fase in cui compaiono i temuti syntax error.
 
-Se rispettiamo le regole della grammatica il flusso di token viene tradotto in un parse tree (o meglio ancora, dipendentemente dal compilatore, in un albero di sintassi astratta). Ecco il parse tree che si può ricavare dal nostro esempio:
+Se rispettiamo le regole della grammatica, il flusso di token viene tradotto in un parse tree (o meglio ancora, a seconda del compilatore, in un albero di sintassi astratta). Ecco il parse tree che si può ricavare dal nostro esempio:
 \begin{figure}[H]
 	\centering
 	\subimport{assets/figures/}{parse-tree.tex}
 	\caption{Esempio di parse tree}
 \end{figure}
-La struttura del parse tree è derivata dalla grammatica del linguaggio. Ad esempio, \texttt{<NUM,2> MUL <NUM,3>} sono sottoalberi di \texttt{ASS} poiché la grammatica del linguaggio prevede che l’assegnazione abbia questa forma. 
+La struttura del parse tree è derivata dalla grammatica del linguaggio. Ad esempio, \texttt{<NUM,2> MUL <NUM,3>} sono sottoalberi di \texttt{ASS} poiché la grammatica del linguaggio prevede che l’assegnamento abbia questa forma. 
 
 \paragraph{}
-Più la struttura del parse tree è minimale più le fasi successive sono efficienti; qui che entra in gioco l’AST, che semplifica ancora lo schema: l’albero di sintassi astratta (abstract syntax tree, AST) è ottenuto dal parse tree compattando delle parti che non saranno utili nelle fasi seguenti della compilazione.
+Più la struttura del parse tree è ridotta al minimo, più le fasi successive sono efficienti; è qui che entra in gioco l’AST, che semplifica ancora lo schema: l’albero di sintassi astratta (abstract syntax tree, AST) è ottenuto dal parse tree compattando delle parti che non saranno utili nelle fasi seguenti della compilazione.
 \begin{figure}[H]
 	\centering
 	\subimport{assets/figures/}{abstract-syntax-tree.tex}
 	\caption{Esempio di abstract syntax tree}
 	\label{esempio_AST}
 \end{figure}
-Il guadagno in complessità in questo caso è poco (abbiamo risparmiato tipo 3 nodi), ma in casi più complessi il risparmio è molto più rilevante.
+Il guadagno in complessità in questo caso è poco (abbiamo risparmiato circa tre nodi), ma in casi più complessi il risparmio è molto più rilevante.
 \paragraph*{}
-Non è facile scrivere una grammatica che possa essere analizzata con efficienza da un compilatore e che, al tempo stesso, generi parse tree più semplici possibili; ma di questo discuteremo in futuro. È da notare che esistono svariate forme di compilatori, noi ne stiamo vedendo una presentazione generale, ma, in molti casi, fasi come creazione di parse tree e AST vengono spesso sovrapposte.
+Non è facile scrivere una grammatica che possa essere analizzata con efficienza da un compilatore e che, al tempo stesso, generi i parse tree più semplici possibili. Di questo, tuttavia, discuteremo in futuro. È da notare che esistono svariate forme di compilatori; qui ne stiamo offrendo una trattazione generale, ma in molti casi fasi quali la creazione di parse tree e AST vengono spesso sovrapposte.
 \paragraph{}
-L’output dell’analisi sintattica è chiamato \emph{tree}, ma non necessariamente è un albero: spesso può essere un grafo. Ad esempio in un’operazione del tipo:
+L’output dell’analisi sintattica è chiamato \emph{tree}, ma non necessariamente è un albero: spesso può essere un grafo. Ad esempio, in un’operazione del tipo:
 \texttt{pippo = pippo * 2}
-il nodo pippo sarebbe collegato sia alla radice che all’operatore \texttt{ASS}, creando quindi un grafo.
+il nodo \texttt{pippo} sarebbe collegato sia alla radice sia all’operatore \texttt{ASS}, creando quindi un grafo.
 \begin{figure}[H]
 	\centering
 	\subimport{assets/figures/}{pippo-tree.tex}
@@ -80,7 +80,7 @@ il nodo pippo sarebbe collegato sia alla radice che all’operatore \texttt{ASS}
 \end{figure}
 
 \subsubsection{Analisi semantica}
-Ora è la fase dell’analisi semantica. Un esempio di operazione di analisi semantica è quello di capire se stiamo utilizzando il giusto operatore di moltiplicazione per l’operazione che vogliamo effettuare. Stiamo chiaramente riferendoci a quei linguaggi in cui esistono diversi significati per uno stesso operatore, come nel caso in cui l'operatore \texttt{MUL} può significare moltiplicazione sia tra interi sia tra float. Quindi si può dire che in questo caso l’analisi semantica chiarisce quale significato ha l’operatore \texttt{MUL}: nell’esempio riportato in \ref{esempio_AST} \texttt{MUL} = moltiplicazione tra due variabili di tipo \texttt{NUM}.
+Segue quindi la fase dell’analisi semantica. Un esempio di operazione di analisi semantica è quello di capire se stiamo utilizzando il giusto operatore di moltiplicazione per l’operazione che vogliamo effettuare. Ci stiamo chiaramente riferendo a quei linguaggi in cui esistono diversi significati per uno stesso operatore, come nel caso in cui l'operatore \texttt{MUL} possa significare una moltiplicazione sia tra interi sia tra float. Quindi si può dire che in questo caso l’analisi semantica chiarisce quale significato ha l’operatore \texttt{MUL}: nell’esempio riportato in \ref{esempio_AST}, \texttt{MUL} indica la moltiplicazione tra due variabili di tipo \texttt{NUM}.
 \begin{figure}[H]
 	\centering
 	\subimport{assets/figures/}{semantica-mul.tex}
@@ -88,7 +88,7 @@ Ora è la fase dell’analisi semantica. Un esempio di operazione di analisi sem
 \end{figure}
 
 \subsubsection{Generazione del codice intermedio}
-È il momento della generazione del codice intermedio: in questa fase viene creato un codice testuale creato traducendo il parse tree. Queste istruzioni sono leggibili dall’uomo ma non è né assembly né codice effettivo, d’altronde si chiama intermedio, no? Nell'esempio in \ref{codice_intermedio} abbiamo sulla sinistra il parse tree e sulla destra abbiamo un esempio del codice intermedio generato.
+È il momento della generazione del codice intermedio: in questa fase viene generato un codice testuale traducendo il parse tree. Queste istruzioni sono leggibili dall’uomo, ma non si tratta né di assembly né di codice macchina effettivo: d'altronde si chiama intermedio proprio per questo. Nell'esempio in \ref{codice_intermedio} abbiamo sulla sinistra il parse tree e sulla destra un esempio del codice intermedio generato.
 \begin{figure}[H]
     \begin{minipage}{.5\textwidth}
 		\raggedleft
@@ -108,23 +108,23 @@ Ora è la fase dell’analisi semantica. Un esempio di operazione di analisi sem
 \end{figure}
 
 \subsubsection{Generazione del target code}
-Questa fase consiste nella traduzione del codice intermedio nell’assembly della specifica macchina. Il codice binario non è necessariamente il target code della compilazione: ad esempio, potremmo essere su una VM e quindi generare una sorta di bytecode, o magari potremmo avere come obiettivo quello di tradurre in \texttt{c} per poi usare il gcc che sappiamo essere super-efficiente.
+Questa fase consiste nella traduzione del codice intermedio nell’assembly della specifica macchina. Il codice binario non è necessariamente il target code della compilazione: ad esempio, potremmo essere su una VM e quindi generare una sorta di bytecode, o magari potremmo avere come obiettivo quello di tradurre in \texttt{C} per poi usare GCC, che sappiamo essere particolarmente efficiente.
 
 \section{Riassumendo le fasi della compilazione}
-Riassumendo i passaggi necessari per la compilazione sono:
+Riassumendo, i passaggi necessari per la compilazione sono:
 \begin{enumerate}
     \item Analisi lessicale
-    \item Analisi sintattica (generazione di AST)
+    \item Analisi sintattica (generazione dell'AST)
     \item Analisi semantica
-    \item Generazione codice intermedio
-    \item Generazione target code
+    \item Generazione del codice intermedio
+    \item Generazione del target code
 \end{enumerate}
 Possiamo dividere questi passaggi in due gruppi:
 \begin{itemize}[]
-    \item \emph{Front-end} Dall’analisi lessicale fino al codice intermedio.
-    \item \emph{Back-end} Tutto il resto.
+    \item \emph{Front-end}: dall’analisi lessicale fino al codice intermedio.
+    \item \emph{Back-end}: tutto il resto.
 \end{itemize}
 Ma perché passiamo dalla fase del codice intermedio? Per ragioni di modularità:
-Se abbiamo \(N\) linguaggi, abbiamo \(N\) front-end e se abbiamo \(K\) macchine, abbiamo \(K\) back-end ciò implica che senza un codice intermedio dovremo creare \(N*K\) differenti compilatori, usiamo il codice intermedio come livello di astrazione per semplificare il tutto. 
+Se abbiamo \(N\) linguaggi, abbiamo \(N\) front-end, e se abbiamo \(K\) macchine, abbiamo \(K\) back-end; ciò implica che senza un codice intermedio dovremmo creare \(N \times K\) differenti compilatori. Usiamo quindi il codice intermedio come livello di astrazione per semplificare il tutto. 
 
 \end{document}
